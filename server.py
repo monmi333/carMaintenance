@@ -447,7 +447,7 @@ def _xls_records(workbook: bytes) -> list[tuple[int, int, bytes]]:
         if len(records) > 200_000:
             raise ApiError(400, "Excel 파일에 처리할 수 없을 만큼 많은 셀이 있습니다.")
         offset = end
-    if offset != len(workbook):
+    if offset != len(workbook) and any(workbook[offset:]):
         raise ApiError(400, "Excel 워크시트 레코드가 손상되었습니다.")
     return records
 
