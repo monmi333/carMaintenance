@@ -1,0 +1,13 @@
+# 런타임 데이터 (DB, 업로드 사진) - 저장소에 올리지 않음
+data/
+uploads/*
+!uploads/.gitkeep
+
+# 개인 차량 리포트 (xls)
+*.xls
+*.xlsx
+
+# 기타
+__pycache__/
+*.pyc
+.DS_Store

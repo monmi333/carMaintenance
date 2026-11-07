@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarCare 정비센터</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">C</span>
+        <div>
+          <strong>CarCare 정비센터</strong>
+          <small>자동차 정비 관리</small>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="items">정비 항목</button>
+        <button class="tab" role="tab" data-tab="reserve">정비 예약</button>
+        <button class="tab" role="tab" data-tab="history">예약 내역</button>
+        <button class="tab" role="tab" data-tab="vehicles">차량 프로필</button>
+        <button class="tab" role="tab" data-tab="records">차량 기록</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- 정비 항목 -->
+    <section class="panel" id="tab-items" hidden>
+      <div class="panel-head">
+        <div>
+          <h1>정비 항목</h1>
+          <p class="muted">부품별 작업 내용, 가격, 권장 교체 주기를 확인하세요.</p>
+        </div>
+        <input type="search" id="item-search" class="search" placeholder="부품명 또는 작업명 검색">
+      </div>
+      <div class="card table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>부품명</th><th>작업명</th><th class="num">가격</th><th class="num">권장 교체</th><th></th></tr>
+          </thead>
+          <tbody id="items-body"><tr><td colspan="5" class="empty">불러오는 중…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 정비 예약 -->
+    <section class="panel" id="tab-reserve" hidden>
+      <div class="panel-head">
+        <div>
+          <h1>정비 예약</h1>
+          <p class="muted">예약자 정보와 정비 항목을 선택한 뒤 결제하면 예약이 확정됩니다.</p>
+        </div>
+      </div>
+      <form id="reserve-form" class="reserve-layout" novalidate>
+        <div class="card form-card">
+          <h2>예약자 정보</h2>
+          <div class="grid-2">
+            <label class="field">이름
+              <input name="customer_name" maxlength="20" required placeholder="홍길동">
+            </label>
+            <label class="field">연락처
+              <input name="phone" inputmode="tel" maxlength="13" required placeholder="010-1234-5678">
+            </label>
+            <label class="field">차량번호
+              <input name="car_number" maxlength="12" required placeholder="12가3456">
+            </label>
+            <label class="field">예약일
+              <input name="reserve_date" type="date" required>
+            </label>
+          </div>
+          <div class="field">예약 시간
+            <div id="slot-list" class="slots"><span class="muted">예약일을 먼저 선택하세요.</span></div>
+          </div>
+          <h2>정비 항목 선택</h2>
+          <div id="reserve-items" class="check-list"></div>
+          <label class="field">요청사항 <span class="muted">(선택)</span>
+            <textarea name="memo" rows="3" maxlength="500" placeholder="차량 증상이나 요청사항을 적어주세요."></textarea>
+          </label>
+        </div>
+
+        <aside class="card summary">
+          <h2>예약 요약</h2>
+          <ul id="summary-list" class="summary-list"><li class="muted">선택한 항목이 없습니다.</li></ul>
+          <div class="summary-total"><span>합계</span><strong id="summary-total">0원</strong></div>
+          <button type="submit" class="btn primary block">예약하고 결제하기</button>
+        </aside>
+      </form>
+    </section>
+
+    <!-- 예약 내역 -->
+    <section class="panel" id="tab-history" hidden>
+      <div class="panel-head">
+        <div>
+          <h1>예약 내역</h1>
+          <p class="muted">결제 대기 중인 예약은 여기서 결제하거나 취소할 수 있습니다.</p>
+        </div>
+        <button type="button" class="btn" id="history-refresh">새로고침</button>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <!-- 차량 프로필 -->
+    <section class="panel" id="tab-vehicles" hidden>
+      <div class="panel-head">
+        <div>
+          <h1>차량 프로필</h1>
+          <p class="muted">차량 사진을 등록하세요. 같은 차량번호로 다시 저장하면 정보가 갱신됩니다.</p>
+        </div>
+      </div>
+      <div class="vehicle-layout">
+        <form id="vehicle-form" class="card form-card" novalidate>
+          <h2>차량 등록 / 수정</h2>
+          <label class="field">차량번호
+            <input name="car_number" maxlength="12" required placeholder="12가3456">
+          </label>
+          <label class="field">차종
+            <input name="model" maxlength="40" required placeholder="예: 쏘나타 DN8">
+          </label>
+          <label class="field">주행거리 (km)
+            <input name="mileage" type="number" min="0" max="2000000" step="1" value="0">
+          </label>
+          <label class="dropzone" id="dropzone">
+            <input type="file" name="photo" id="photo-input" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp">
+            <img id="photo-preview" alt="" hidden>
+            <span id="dropzone-text"><strong>사진 선택</strong> 또는 끌어다 놓기<br><small>JPG · PNG · GIF · WEBP, 최대 5MB</small></span>
+          </label>
+          <button type="submit" class="btn primary block">저장</button>
+        </form>
+        <div>
+          <div id="vehicle-grid" class="vehicle-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 마이클 기록 -->
+    <section class="panel" id="tab-records" hidden>
+      <div class="panel-head">
+        <div>
+          <h1>차량 기록</h1>
+          <p class="muted">마이클에서 내보낸 정비·주유·기타·주행 기록을 가져와 관리하세요.</p>
+        </div>
+        <button type="button" class="btn" id="records-refresh">새로고침</button>
+      </div>
+      <div class="records-top">
+        <form id="michael-import-form" class="card form-card" novalidate>
+          <h2>마이클 리포트 가져오기</h2>
+          <p class="muted import-help">마이클 앱에서 내려받은 Excel 97-2003 형식(.xls) 파일을 선택하세요. 같은 기록은 다시 가져와도 중복 저장되지 않습니다.</p>
+          <label class="field">내보내기 파일
+            <input id="michael-file" name="file" type="file" accept=".xls,application/vnd.ms-excel" required>
+          </label>
+          <button type="submit" class="btn primary block">기록 가져오기</button>
+          <p id="import-result" class="import-result" role="status" aria-live="polite"></p>
+        </form>
+        <div id="records-summary" class="records-summary"></div>
+      </div>
+      <div class="record-filters">
+        <label class="field">차량
+          <select id="records-car-filter"><option value="">모든 차량</option></select>
+        </label>
+        <label class="field">기록 종류
+          <select id="records-type-filter">
+            <option value="">전체 종류</option>
+            <option value="정비">정비</option>
+            <option value="주유">주유</option>
+            <option value="기타">기타</option>
+            <option value="주행">주행</option>
+          </select>
+        </label>
+      </div>
+      <div class="card table-wrap">
+        <table class="table records-table">
+          <thead>
+            <tr><th>날짜</th><th>차량번호</th><th>종류</th><th>항목</th><th class="num">금액</th><th class="num">주행거리</th><th>장소</th><th>메모</th></tr>
+          </thead>
+          <tbody id="records-body"><tr><td colspan="8" class="empty">기록을 불러오는 중…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- 결제 시뮬레이션 -->
+  <dialog id="pay-dialog" class="dialog">
+    <form id="pay-form" novalidate>
+      <div class="dialog-head">
+        <h2>결제 <span class="badge sim">시뮬레이션</span></h2>
+        <button type="button" class="icon-btn" data-close aria-label="닫기">×</button>
+      </div>
+      <div id="pay-step">
+        <div id="pay-summary" class="pay-summary"></div>
+        <div class="segmented" role="radiogroup">
+          <label><input type="radio" name="method" value="card" checked><span>신용카드</span></label>
+          <label><input type="radio" name="method" value="transfer"><span>계좌이체</span></label>
+        </div>
+        <div id="card-fields">
+          <label class="field">카드번호
+            <input name="card_number" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" autocomplete="off">
+          </label>
+          <div class="grid-2">
+            <label class="field">유효기간
+              <input name="expiry" inputmode="numeric" maxlength="5" placeholder="MM/YY" autocomplete="off">
+            </label>
+            <label class="field">CVC
+              <input name="cvc" inputmode="numeric" maxlength="3" placeholder="123" autocomplete="off">
+            </label>
+          </div>
+          <p class="hint">실제 결제는 발생하지 않습니다. 0000으로 끝나는 카드번호는 승인 거절을 시뮬레이션합니다.</p>
+        </div>
+        <div id="transfer-fields" hidden>
+          <div class="account-box">가상계좌 <strong>정비은행 123-456-789012</strong> (예금주: CarCare)</div>
+          <label class="field">입금자명
+            <input name="depositor" maxlength="20" placeholder="홍길동">
+          </label>
+        </div>
+        <p id="pay-error" class="error" hidden></p>
+        <button type="submit" class="btn primary block" id="pay-submit">결제하기</button>
+      </div>
+      <div id="pay-result" hidden>
+        <div class="result-icon" aria-hidden="true">✓</div>
+        <h3>결제가 완료되었습니다</h3>
+        <dl id="pay-result-info" class="info-list"></dl>
+        <button type="button" class="btn primary block" data-close>확인</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
